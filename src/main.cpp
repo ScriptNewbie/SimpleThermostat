@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 
+
 #include "eePromTools.h"
 #include "configurationHotspot.h"
 #include "httpServer.h"
+#include "clock.h"
+#include "temperatureSensor.h"
 
 String ssid;
 String wpa;
@@ -15,6 +18,10 @@ float temperatureNormal;
 
 ConfigurationHotspot configurationHotspot;
 HttpServer httpServer;
+Clock timeClock;
+TemperatureSensor temperatureSensor;
+
+float currentTemperature;
 
 void setup()
 {
@@ -33,4 +40,7 @@ void loop()
 {
   httpServer.tasks();
   configurationHotspot.tasks();
+  timeClock.tasks();
+
+  currentTemperature = temperatureSensor.getTemperature();
 }

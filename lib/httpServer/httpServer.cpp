@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "httpServer.h"
 #include "eePromTools.h"
+#include "clock.h"
 
 extern String ssid;
 extern String wpa;
@@ -9,9 +10,15 @@ extern float temperatureNormal;
 extern String hotterPeriodStart;
 extern String hotterPeriodEnd;
 
+extern float currentTemperature;
+extern Clock timeClock;
+
 void HttpServer::handleDataGet(){
     doc.clear();
     doc["ip"] = WiFi.localIP().toString();
+    doc["temperature"] = currentTemperature;
+    doc["time"] = timeClock.getTimeString();
+    doc["heatingProfile"] = timeClock.currentTimeInRange(hotterPeriodStart, hotterPeriodEnd) ? "hotter" : "normal";
 
     char output[1024];
     serializeJsonPretty(doc, output);
