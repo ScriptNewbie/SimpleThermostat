@@ -10,7 +10,6 @@
 String ssid;
 String wpa;
 
-
 ConfigurationHotspot configurationHotspot;
 HttpServer httpServer;
 Heater heater;
@@ -19,12 +18,14 @@ void setup()
 {
   heater.setup();
 
-  ssid = eepromRead(SSID_START, WPA_START);
+  ssid = eepromRead(SSID_START, SSID_END);
   wpa = eepromRead(WPA_START, WPA_END);
   WiFi.begin(ssid.c_str(), wpa.c_str());
 
-  Serial.begin(115200);
   httpServer.setup();
+
+  Serial.begin(115200);
+  Serial.println("Starting up");
 }
 
 void loop()
@@ -32,5 +33,4 @@ void loop()
   httpServer.tasks();
   configurationHotspot.tasks();
   heater.tasks();
-
 }

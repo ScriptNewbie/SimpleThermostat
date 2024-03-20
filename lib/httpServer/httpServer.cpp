@@ -15,6 +15,7 @@ void HttpServer::handleDataGet(){
     doc["temperature"] = heater.temperatureSensor.getTemperature();
     doc["time"] = heater.timeClock.getTimeString();
     doc["heating"] = heater.isHeating();
+    doc["targetTemperature"] = heater.getTargetTemperature();
 
     char output[1024];
     serializeJsonPretty(doc, output);
@@ -25,11 +26,16 @@ String HttpServer::generateCurrentSettingsString(){
     doc.clear();
     doc["ssid"] = ssid;
     doc["wpa"] = wpa;
-    doc["temperatureHotter"] = heater.temperatureHotter;
-    doc["temperatureNormal"] = heater.temperatureNormal;
     doc["hysteresis"] = heater.hysteresis;
-    doc["hotterPeriodStart"] = heater.hotterPeriodStart;
-    doc["hotterPeriodEnd"] = heater.hotterPeriodEnd;
+    doc["defaultTemperature"] = heater.defaultTemperature;
+
+    JsonArray heatingPeriods = doc.createNestedArray("heatingPeriods");
+
+    HeatingPeriod *periods = heater.getHeatingPeriods();
+    for(int i = 0; i < heater.getHeatingPeriodsCount(); ++i){
+        HeatingPeriod period = periods[i];
+        heatingPeriods.add(period);
+    }
     
 
     char output[1024];
@@ -66,34 +72,20 @@ void HttpServer::handleSettingsPost()
             wifiSettingsChanged = true;
         }
 
-        if (doc.containsKey("temperatureHotter"))
-        {
-            heater.temperatureHotter = doc["temperatureHotter"].as<float>();
-            eepromWrite(TEMPERATURE_HOTTER_START, String(heater.temperatureHotter));
-        }
-
-        if (doc.containsKey("temperatureNormal"))
-        {
-            heater.temperatureNormal = doc["temperatureNormal"].as<float>();
-            eepromWrite(TEMPERATURE_NORMAL_START, String(heater.temperatureNormal));
-        }
-
-        if (doc.containsKey("hotterPeriodStart"))
-        {
-            heater.hotterPeriodStart = doc["hotterPeriodStart"].as<String>();
-            eepromWrite(HOTTER_PERIOD_START_START, heater.hotterPeriodStart);
-        }
-
-        if (doc.containsKey("hotterPeriodEnd"))
-        {
-            heater.hotterPeriodEnd = doc["hotterPeriodEnd"].as<String>();
-            eepromWrite(HOTTER_PERIOD_END_START, heater.hotterPeriodEnd);
+        if(doc.containsKey("heatingPeriods")){
+            JsonArray periods = doc["heatingPeriods"].as<JsonArray>();
+            heater.setHeatingPeriods(periods);
         }
         
         if (doc.containsKey("hysteresis"))
         {
             heater.hysteresis = doc["hysteresis"].as<float>();
             eepromWrite(HYSTERESIS_START, String(heater.hysteresis));
+        }
+
+        if(doc.containsKey("defaultTemperature")){
+            heater.defaultTemperature = doc["defaultTemperature"].as<float>();
+            eepromWrite(DEFAULT_TEMPERATURE_START, String(heater.defaultTemperature));
         }
 
         server.send(200, "application/json", generateCurrentSettingsString());

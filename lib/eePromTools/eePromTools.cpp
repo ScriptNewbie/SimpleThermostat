@@ -1,7 +1,7 @@
 #include "eepromTools.h"
 
 String eepromRead(unsigned int startAddress, unsigned int endAddress) {
-    EEPROM.begin(512);
+    EEPROM.begin(2048);
     String value = "";
     char current;
     for(unsigned int i = startAddress; i < endAddress; ++i){
@@ -15,7 +15,7 @@ String eepromRead(unsigned int startAddress, unsigned int endAddress) {
 }
 
 String eepromWrite(unsigned int startAddress, String value) {
-    EEPROM.begin(512);
+    EEPROM.begin(2048);
     for(unsigned int i = 0; i < value.length(); ++i){
         EEPROM.write(startAddress + i, value[i]);
     }
@@ -27,7 +27,7 @@ String eepromWrite(unsigned int startAddress, String value) {
 }
 
 void clearEeprom() {
-    EEPROM.begin(512);
+    EEPROM.begin(2048);
     for (int i = 0; i < 512; ++i) {
         EEPROM.write(i, '\0');
     }

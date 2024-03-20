@@ -7,11 +7,14 @@ void Heater::setup()
 {
     timeClock.setup();
     temperatureSensor.setup();
-    temperatureHotter = eepromRead(TEMPERATURE_HOTTER_START, TEMPERATURE_NORMAL_START).toFloat();
-    temperatureNormal = eepromRead(TEMPERATURE_NORMAL_START, HOTTER_PERIOD_START_START).toFloat();
-    hotterPeriodStart = eepromRead(HOTTER_PERIOD_START_START, HOTTER_PERIOD_END_START);
-    hotterPeriodEnd = eepromRead(HOTTER_PERIOD_END_START, HYSTERESIS_START);
     hysteresis = eepromRead(HYSTERESIS_START, HYSTERESIS_END).toFloat();
+
+    String heatingPeriodsString = eepromRead(HEATING_PERIODS_START, HEATING_PERIODS_END);
+
+    JsonDocument doc;
+    deserializeJson(doc, heatingPeriodsString);
+    JsonArray periods = doc.as<JsonArray>();
+    setHeatingPeriods(periods);
 }
 
 void Heater::tasks()
@@ -38,7 +41,7 @@ bool Heater::isHeating()
 
 void Heater::regulateTemperature()
 {
-    float targetTemperature = timeClock.currentTimeInRange(hotterPeriodStart, hotterPeriodEnd) ? temperatureHotter : temperatureNormal;
+    float targetTemperature = getTargetTemperature();
     float currentTemperature = temperatureSensor.getTemperature();
 
     if (isHeating() && currentTemperature > targetTemperature + hysteresis)
@@ -49,4 +52,44 @@ void Heater::regulateTemperature()
     {
         return startHeating();
     }
+}
+
+bool convertToJson(const HeatingPeriod &period, JsonVariant variant)
+{
+    variant["start"] = period.start;
+    variant["end"] = period.end;
+    variant["temperature"] = period.temperature;
+    return true;
+}
+
+void Heater::setHeatingPeriods(JsonArray periods)
+{
+    char buffer[1024];
+    serializeJson(periods, buffer);
+    eepromWrite(HEATING_PERIODS_START, String(buffer));
+
+    int count = periods.size();
+    HeatingPeriod *newHeatingPeriods = new HeatingPeriod[count];
+    for (int i = 0; i < count; ++i)
+    {
+        HeatingPeriod period;
+        period.start = periods[i]["start"].as<String>();
+        period.end = periods[i]["end"].as<String>();
+        period.temperature = periods[i]["temperature"].as<float>();
+        newHeatingPeriods[i] = period;
+    }
+    delete[] heatingPeriods;
+    heatingPeriodsCount = count;
+    heatingPeriods = newHeatingPeriods;
+}
+
+float Heater::getTargetTemperature()
+{
+    for(int i = 0; i < heatingPeriodsCount; ++i){
+        HeatingPeriod period = heatingPeriods[i];
+        if(timeClock.currentTimeInRange(period.start, period.end)){
+            return period.temperature;
+        }
+    }
+    return defaultTemperature;
 }
