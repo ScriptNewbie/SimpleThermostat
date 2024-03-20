@@ -29,13 +29,16 @@ String HttpServer::generateCurrentSettingsString(){
     doc["hysteresis"] = heater.hysteresis;
     doc["defaultTemperature"] = heater.defaultTemperature;
 
-    JsonArray heatingPeriods = doc.createNestedArray("heatingPeriods");
+    JsonDocument heatingPeriodsDoc;
+    JsonArray heatingPeriods = heatingPeriodsDoc.to<JsonArray>();
 
     HeatingPeriod *periods = heater.getHeatingPeriods();
     for(int i = 0; i < heater.getHeatingPeriodsCount(); ++i){
         HeatingPeriod period = periods[i];
         heatingPeriods.add(period);
     }
+
+    doc["heatingPeriods"] = heatingPeriods;
     
 
     char output[1024];
