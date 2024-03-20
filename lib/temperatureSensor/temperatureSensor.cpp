@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 void TemperatureSensor::measureTemperature() {
+    sensors.requestTemperatures();
     temperatures[currentIndex] = sensors.getTempCByIndex(0);
     currentIndex = (currentIndex + 1) % 3;
 }
@@ -18,6 +19,7 @@ void TemperatureSensor::setup() {
     sensors.begin();
 
     for (int i = 0; i < 3; ++i) {
+        sensors.requestTemperatures();
         temperatures[i] = sensors.getTempCByIndex(0);
     }
 }
