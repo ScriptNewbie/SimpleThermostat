@@ -1,4 +1,5 @@
 #include "temperatureSensor.h"
+#include <Arduino.h>
 
 void TemperatureSensor::measureTemperature() {
     temperatures[currentIndex] = sensors.getTempCByIndex(0);
@@ -19,6 +20,12 @@ void TemperatureSensor::setup() {
     for (int i = 0; i < 3; ++i) {
         temperatures[i] = sensors.getTempCByIndex(0);
     }
+}
 
-    ticker.attach(5, std::bind(&TemperatureSensor::measureTemperature, this));
+void TemperatureSensor::tasks() {
+    unsigned long now = millis();
+    if(now - lastMeasurement > 1000 * 5){
+        lastMeasurement = now;
+        measureTemperature();
+    }
 }

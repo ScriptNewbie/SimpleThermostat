@@ -5,10 +5,12 @@
 #define SSID_START 0
 #define WPA_START 100
 #define TEMPERATURE_HOTTER_START 200
+#define WPA_END TEMPERATURE_HOTTER_START
 #define TEMPERATURE_NORMAL_START 204
 #define HOTTER_PERIOD_START_START 208
 #define HOTTER_PERIOD_END_START 213
-#define HOTTER_PERIOD_END_END 218
+#define HYSTERESIS_START 218
+#define HYSTERESIS_END 222
 
 String eepromRead(unsigned int startAddress, unsigned int endAddress);
 String eepromWrite(unsigned int startAddress, String value);
