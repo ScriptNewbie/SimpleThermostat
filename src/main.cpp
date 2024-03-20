@@ -17,13 +17,14 @@ Heater heater;
 
 void setup()
 {
-  Serial.begin(115200);
+  heater.setup();
+
   ssid = eepromRead(SSID_START, WPA_START);
   wpa = eepromRead(WPA_START, WPA_END);
-
   WiFi.begin(ssid.c_str(), wpa.c_str());
+
+  Serial.begin(115200);
   httpServer.setup();
-  heater.setup();
 }
 
 void loop()

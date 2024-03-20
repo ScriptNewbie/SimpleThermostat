@@ -14,6 +14,7 @@ void HttpServer::handleDataGet(){
     doc["ip"] = WiFi.localIP().toString();
     doc["temperature"] = heater.temperatureSensor.getTemperature();
     doc["time"] = heater.timeClock.getTimeString();
+    doc["heating"] = heater.isHeating();
 
     char output[1024];
     serializeJsonPretty(doc, output);

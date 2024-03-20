@@ -15,4 +15,10 @@ public:
     float hysteresis;
     void setup();
     void tasks();
+    bool isHeating();
+
+private:
+    void startHeating();
+    void stopHeating();
+    void regulateTemperature();
 };
