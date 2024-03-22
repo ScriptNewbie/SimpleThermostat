@@ -14,6 +14,7 @@ class HttpServer {
         void handleSettingsPost();
         void handleDataGet();
         String generateCurrentSettingsString();
+        bool MdnsStarted = false;
 
     public:
         void setup();
