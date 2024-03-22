@@ -1,10 +1,11 @@
 #include "heater.h"
 #include "eePromTools.h"
 
-#define HEATER_PIN 5
+#define HEATER_PIN 8
 
 void Heater::setup()
 {
+    pinMode(HEATER_PIN, OUTPUT);
     timeClock.setup();
     temperatureSensor.setup();
     hysteresis = eepromRead(HYSTERESIS_START, HYSTERESIS_END).toFloat();
