@@ -1,7 +1,7 @@
 #include "heater.h"
 #include "eePromTools.h"
 
-#define HEATER_PIN 8
+#define HEATER_PIN 2
 
 void Heater::setup()
 {
