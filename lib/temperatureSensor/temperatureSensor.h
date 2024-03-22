@@ -3,6 +3,8 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+#define TEMPERATURE_SENSOR_PIN 5
+
 class TemperatureSensor {
     private: 
         OneWire oneWire;
@@ -12,7 +14,7 @@ class TemperatureSensor {
         int currentIndex = 0;
         unsigned long lastMeasurement = 0;
     public:
-        TemperatureSensor() : oneWire(2), sensors(&oneWire) {};
+        TemperatureSensor() : oneWire(TEMPERATURE_SENSOR_PIN), sensors(&oneWire) {};
         void setup();
         void tasks();
         float getTemperature();
