@@ -1,3 +1,9 @@
+# Disclaimer
+
+This software / device might not function properly.
+
+This software / device is intended only to be used in scenarios where it cannot cause any harm and cannot be used in different scenarios.
+
 # What is it?
 
 It's a repo containing software to create a simple ESP8266 (ESP-12E/NodeMCU) and DS18B20 based thermostat. 
