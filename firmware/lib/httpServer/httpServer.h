@@ -19,5 +19,6 @@ class HttpServer {
     public:
         void setup();
         void tasks();
+        void setCORSHeaders();
         HttpServer() : server(80) {};
 };

@@ -10,6 +10,13 @@ extern String ssid;
 extern String wpa;
 extern Heater heater;
 
+void HttpServer::setCORSHeaders()
+{
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
 void HttpServer::handleDataGet()
 {
     doc.clear();
@@ -21,6 +28,7 @@ void HttpServer::handleDataGet()
 
     char output[1024];
     serializeJsonPretty(doc, output);
+    setCORSHeaders();
     server.send(200, "application/json", output);
 };
 
@@ -51,6 +59,7 @@ String HttpServer::generateCurrentSettingsString()
 
 void HttpServer::handleSettingsGet()
 {
+    setCORSHeaders();
     server.send(200, "application/json", generateCurrentSettingsString());
 }
 
@@ -96,6 +105,7 @@ void HttpServer::handleSettingsPost()
             eepromWrite(DEFAULT_TEMPERATURE_START, String(heater.defaultTemperature));
         }
 
+        setCORSHeaders();
         server.send(200, "application/json", generateCurrentSettingsString());
 
         if (wifiSettingsChanged)
@@ -104,18 +114,22 @@ void HttpServer::handleSettingsPost()
             WiFi.disconnect(true);
             WiFi.begin(ssid.c_str(), wpa.c_str());
         }
+
+        return;
     }
 
+    setCORSHeaders();
     server.send(400, "application/json", "{\"error\": \"Invalid request\"}");
 }
 
 void HttpServer::setup()
 {
-
     httpUpdater.setup(&server);
     server.on("/settings", HTTP_GET, std::bind(&HttpServer::handleSettingsGet, this));
     server.on("/settings", HTTP_POST, std::bind(&HttpServer::handleSettingsPost, this));
     server.on("/data", HTTP_GET, std::bind(&HttpServer::handleDataGet, this));
+    server.on("/settings", HTTP_OPTIONS, [this](){ setCORSHeaders(); server.send(204); }); // Handle preflight requests
+    server.on("/data", HTTP_OPTIONS, [this](){ setCORSHeaders(); server.send(204); }); // Handle preflight requests
     server.begin();  
 }
 
