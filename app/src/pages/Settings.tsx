@@ -6,6 +6,8 @@ import {
   Input,
   Button,
   VStack,
+  Spinner,
+  Center,
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import { useSettings } from "../hooks/useSettings";
@@ -47,7 +49,7 @@ export const Settings = () => {
   return (
     <Container>
       <Heading>Ustawienia</Heading>
-      {isSuccess && (
+      {isSuccess ? (
         <form onSubmit={handleSubmit}>
           <VStack align="stretch">
             <FormControl>
@@ -83,6 +85,10 @@ export const Settings = () => {
             </Button>
           </VStack>
         </form>
+      ) : (
+        <Center>
+          <Spinner mt={3} justifySelf="center" />
+        </Center>
       )}
     </Container>
   );

@@ -1,8 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Settings } from "./useSettings";
 import axios from "axios";
 
 export const useMutateSettings = () => {
+  const client = useQueryClient();
   return useMutation({
     mutationFn: async (settings: Partial<Settings>) => {
       const { data } = await axios.post<Settings>(
@@ -10,6 +11,9 @@ export const useMutateSettings = () => {
         settings
       );
       return data;
+    },
+    onSettled: () => {
+      client.invalidateQueries({ queryKey: ["settings"] });
     },
   });
 };
